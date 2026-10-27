@@ -1,0 +1,79 @@
+{
+  "model_4b": "Qwen3.5-4B",
+  "model_35b": "Qwen3.6-35B-A3B-FP8",
+  "input_identity_checked": true,
+  "baseline_harness_exact_identity_proven": false,
+  "warning": "Exploratory 5-task result. Different model generation, quantization, endpoint and hardware; public benchmark tests may be in training.",
+  "preflight_excluded_from_counts": true,
+  "qwen35_4b": {
+    "denominator": 5,
+    "normal_agent_completion": 3,
+    "public_passed": 4,
+    "heldout_passed": 3,
+    "input_tokens": 151346,
+    "output_tokens": 7513,
+    "model_calls": 44,
+    "output_truncations": 1,
+    "tool_errors": 0,
+    "result_file_sha256": "bb47be76171b75224ae3b2fd260a5cca3a32fb9636f72e0eab68624900f743fb"
+  },
+  "qwen36_35b": {
+    "denominator": 5,
+    "normal_agent_completion": 3,
+    "public_passed": 3,
+    "heldout_passed": 3,
+    "input_tokens": 154794,
+    "output_tokens": 6250,
+    "model_calls": 43,
+    "output_truncations": 3,
+    "tool_errors": 1,
+    "result_file_sha256": "b8509afa04541249dc2c4546909ee414e61f3ecc122999d4a06f9af852f37250"
+  },
+  "paired": [
+    {
+      "task_id": 11,
+      "4b_public": "passed",
+      "35b_public": "passed",
+      "4b_heldout": "passed",
+      "35b_heldout": "passed",
+      "4b_status": "verified_public_tests",
+      "35b_status": "verified_public_tests"
+    },
+    {
+      "task_id": 462,
+      "4b_public": "failed",
+      "35b_public": "failed",
+      "4b_heldout": "failed",
+      "35b_heldout": "failed",
+      "4b_status": "step_limit",
+      "35b_status": "step_limit"
+    },
+    {
+      "task_id": 476,
+      "4b_public": "passed",
+      "35b_public": "passed",
+      "4b_heldout": "passed",
+      "35b_heldout": "passed",
+      "4b_status": "verified_public_tests",
+      "35b_status": "verified_public_tests"
+    },
+    {
+      "task_id": 172,
+      "4b_public": "passed",
+      "35b_public": "passed",
+      "4b_heldout": "passed",
+      "35b_heldout": "passed",
+      "4b_status": "verified_public_tests",
+      "35b_status": "verified_public_tests"
+    },
+    {
+      "task_id": 83,
+      "4b_public": "passed",
+      "35b_public": "failed",
+      "4b_heldout": "failed",
+      "35b_heldout": "failed",
+      "4b_status": "step_limit",
+      "35b_status": "step_limit"
+    }
+  ]
+}

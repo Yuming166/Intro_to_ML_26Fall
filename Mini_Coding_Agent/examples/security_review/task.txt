@@ -1,0 +1,1 @@
+Update parse_literal so whitespace-only input returns None and preserve support for Python literal values. Run the tests and use the security review tool; assess and address findings where appropriate.

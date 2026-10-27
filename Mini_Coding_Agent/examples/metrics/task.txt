@@ -1,0 +1,1 @@
+Repair precision_recall. For binary lists of equal length, return precision and recall. Define a zero denominator as 0.0; raise ValueError when the lengths differ. Preserve normal cases. Run tests before finishing.

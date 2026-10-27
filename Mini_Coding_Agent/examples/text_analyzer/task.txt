@@ -1,0 +1,1 @@
+Repair the word frequency analyzer across its files. Treat consecutive Unicode letters or digits as a word; ignore punctuation, underscore, and case. Return (word, count) pairs ordered by descending count and alphabetically on ties. Return at most limit pairs; zero gives an empty list and negative limit raises ValueError. Run the public tests and summarize your changes.

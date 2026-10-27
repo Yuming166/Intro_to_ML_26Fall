@@ -1,0 +1,173 @@
+{
+  "name": "exploratory paired 20-question course study; not official MBPP pass@k",
+  "seed": "course-mbpp-comparison-20-20261028",
+  "dataset_sha256": "ca95deaa9a01ef0a6f439f88bcf0dd3db3563d22f22aad6cae04ebb9a8d8c8e9",
+  "selection": "sanitized MBPP official test IDs 11-510 excluding prior pilot IDs; no test imports; one undecorated function with simple signature; >=3 syntactically distinct asserts all calling that function; lowest SHA256(seed|task_id)",
+  "excluded_previous_ids": [
+    11,
+    83,
+    172,
+    462,
+    476
+  ],
+  "eligible_count": 234,
+  "sample_count": 20,
+  "max_model_steps": 12,
+  "max_output_tokens_per_call": 1024,
+  "temperature": 0,
+  "models": [
+    "Qwen3.5-4B",
+    "Qwen3.6-35B-A3B"
+  ],
+  "tool_feedback": "first two original asserts visible",
+  "heldout": "remaining original asserts; separate from agent workspace and not fed back",
+  "warning": "The held-out cases are public MBPP data, not secret or independent of model training.",
+  "order": "sequential; 4B first on even-indexed tasks, 35B first on odd-indexed tasks",
+  "wall_timeout_s_per_episode": 240,
+  "timing": "monotonic time from agent subprocess start to exit; includes Python startup, model calls and queuing, sandbox tests, security scans, and HTML generation; excludes heldout grading",
+  "primary_correctness": "both the final public tests and all held-out tests pass; independently report agent completion, failures, and missing outcomes",
+  "no_replacement": true,
+  "no_retry": true,
+  "tasks": [
+    {
+      "task_id": 92,
+      "entry_point": "is_undulating",
+      "public_assertions": 2,
+      "heldout_assertions": 1,
+      "reference_preflight": "passed"
+    },
+    {
+      "task_id": 305,
+      "entry_point": "start_withp",
+      "public_assertions": 2,
+      "heldout_assertions": 1,
+      "reference_preflight": "passed"
+    },
+    {
+      "task_id": 472,
+      "entry_point": "check_Consecutive",
+      "public_assertions": 2,
+      "heldout_assertions": 1,
+      "reference_preflight": "passed"
+    },
+    {
+      "task_id": 290,
+      "entry_point": "max_length",
+      "public_assertions": 2,
+      "heldout_assertions": 1,
+      "reference_preflight": "passed"
+    },
+    {
+      "task_id": 430,
+      "entry_point": "parabola_directrix",
+      "public_assertions": 2,
+      "heldout_assertions": 1,
+      "reference_preflight": "passed"
+    },
+    {
+      "task_id": 309,
+      "entry_point": "maximum",
+      "public_assertions": 2,
+      "heldout_assertions": 1,
+      "reference_preflight": "passed"
+    },
+    {
+      "task_id": 426,
+      "entry_point": "filter_oddnumbers",
+      "public_assertions": 2,
+      "heldout_assertions": 1,
+      "reference_preflight": "passed"
+    },
+    {
+      "task_id": 260,
+      "entry_point": "newman_prime",
+      "public_assertions": 2,
+      "heldout_assertions": 1,
+      "reference_preflight": "passed"
+    },
+    {
+      "task_id": 408,
+      "entry_point": "k_smallest_pairs",
+      "public_assertions": 2,
+      "heldout_assertions": 1,
+      "reference_preflight": "passed"
+    },
+    {
+      "task_id": 269,
+      "entry_point": "ascii_value",
+      "public_assertions": 2,
+      "heldout_assertions": 1,
+      "reference_preflight": "passed"
+    },
+    {
+      "task_id": 166,
+      "entry_point": "find_even_pair",
+      "public_assertions": 2,
+      "heldout_assertions": 1,
+      "reference_preflight": "passed"
+    },
+    {
+      "task_id": 299,
+      "entry_point": "max_aggregate",
+      "public_assertions": 2,
+      "heldout_assertions": 1,
+      "reference_preflight": "passed"
+    },
+    {
+      "task_id": 448,
+      "entry_point": "cal_sum",
+      "public_assertions": 2,
+      "heldout_assertions": 1,
+      "reference_preflight": "passed"
+    },
+    {
+      "task_id": 111,
+      "entry_point": "common_in_nested_lists",
+      "public_assertions": 2,
+      "heldout_assertions": 1,
+      "reference_preflight": "passed"
+    },
+    {
+      "task_id": 132,
+      "entry_point": "tup_string",
+      "public_assertions": 2,
+      "heldout_assertions": 1,
+      "reference_preflight": "passed"
+    },
+    {
+      "task_id": 390,
+      "entry_point": "add_string",
+      "public_assertions": 2,
+      "heldout_assertions": 1,
+      "reference_preflight": "passed"
+    },
+    {
+      "task_id": 103,
+      "entry_point": "eulerian_num",
+      "public_assertions": 2,
+      "heldout_assertions": 1,
+      "reference_preflight": "passed"
+    },
+    {
+      "task_id": 273,
+      "entry_point": "substract_elements",
+      "public_assertions": 2,
+      "heldout_assertions": 1,
+      "reference_preflight": "passed"
+    },
+    {
+      "task_id": 477,
+      "entry_point": "is_lower",
+      "public_assertions": 2,
+      "heldout_assertions": 1,
+      "reference_preflight": "passed"
+    },
+    {
+      "task_id": 424,
+      "entry_point": "extract_rear",
+      "public_assertions": 2,
+      "heldout_assertions": 1,
+      "reference_preflight": "passed"
+    }
+  ]
+}

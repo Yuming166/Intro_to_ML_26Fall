@@ -1,0 +1,108 @@
+{
+  "audit_status": "passed",
+  "audit_errors": [],
+  "dataset_sha256": "ca95deaa9a01ef0a6f439f88bcf0dd3db3563d22f22aad6cae04ebb9a8d8c8e9",
+  "selection_seed": "course-mbpp-comparison-20-20261028",
+  "new_task_count": 20,
+  "episode_count": 40,
+  "model_statistics": {
+    "4b": {
+      "planned": 20,
+      "recorded": 20,
+      "correctness": {
+        "passed": 17,
+        "failed": 3
+      },
+      "public_passed": 17,
+      "heldout_passed": 17,
+      "normal_agent_completion": 17,
+      "agent_statuses": {
+        "verified_public_tests": 17,
+        "step_limit": 3
+      },
+      "failure_patterns": {
+        "public_failed_heldout_failed": 3
+      },
+      "timed_episodes": 20,
+      "wall_mean_s": 7.08,
+      "wall_median_s": 5.86,
+      "wall_min_s": 4.08,
+      "wall_max_s": 20.47,
+      "passed_timed_count": 17,
+      "passed_wall_mean_s": 5.69,
+      "failed_timed_count": 3,
+      "failed_wall_mean_s": 15.01,
+      "api_complete_episodes": 20,
+      "api_sum_per_episode_mean_s": 5.72,
+      "model_calls": 155,
+      "output_truncations": 5,
+      "tool_errors": 1,
+      "security_statuses": {
+        "findings": 20
+      },
+      "security_findings_by_location_and_rule": {
+        "tests:B101": 40
+      },
+      "input_tokens_recorded": 375575,
+      "output_tokens_recorded": 19765
+    },
+    "35b": {
+      "planned": 20,
+      "recorded": 20,
+      "correctness": {
+        "passed": 20
+      },
+      "public_passed": 20,
+      "heldout_passed": 20,
+      "normal_agent_completion": 20,
+      "agent_statuses": {
+        "verified_public_tests": 20
+      },
+      "failure_patterns": {},
+      "timed_episodes": 20,
+      "wall_mean_s": 5.49,
+      "wall_median_s": 4.9,
+      "wall_min_s": 3.42,
+      "wall_max_s": 10.85,
+      "passed_timed_count": 20,
+      "passed_wall_mean_s": 5.49,
+      "failed_timed_count": 0,
+      "failed_wall_mean_s": null,
+      "api_complete_episodes": 20,
+      "api_sum_per_episode_mean_s": 4.12,
+      "model_calls": 146,
+      "output_truncations": 1,
+      "tool_errors": 0,
+      "security_statuses": {
+        "findings": 20
+      },
+      "security_findings_by_location_and_rule": {
+        "tests:B101": 40
+      },
+      "input_tokens_recorded": 332270,
+      "output_tokens_recorded": 14319
+    }
+  },
+  "recheck_count": 40,
+  "recheck_matching_count": 40,
+  "paired_correctness": {
+    "4b_passed_35b_passed": 17,
+    "4b_failed_35b_passed": 3
+  },
+  "posthoc_common_pass_timing": {
+    "label": "post-hoc paired subset where both passed",
+    "task_count": 17,
+    "4b": {
+      "timed_count": 17,
+      "mean_s": 5.69,
+      "median_s": 5.68
+    },
+    "35b": {
+      "timed_count": 17,
+      "mean_s": 5.2,
+      "median_s": 4.88
+    }
+  },
+  "time_scope": "monotonic time from agent subprocess start to exit; includes Python startup, model calls and queuing, sandbox tests, security scans, and HTML generation; excludes heldout grading",
+  "warning": "Single exploratory attempt per task/model. Models differ in version and endpoint; hardware and quantization are not controlled. Public MBPP tests may be known to models."
+}

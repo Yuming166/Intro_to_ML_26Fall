@@ -28,7 +28,7 @@
 | 模型 | 实验中的部署情况 |
 | --- | --- |
 | Qwen3.5-4B | 本机通过 vLLM 服务调用，运行在 1 张 NVIDIA GeForce RTX 4090 上；该卡显存容量约 22.5 GiB。 |
-| Qwen3.6-35B-A3B-FP8 | 调用另一台服务器上的 vLLM 服务，运行在一张 NVIDIA A100 Tensor Core GPU 上 |
+| Qwen3.6-35B-A3B-FP8 | 调用另一台服务器上的 vLLM 服务，运行在 1 张 NVIDIA A100 Tensor Core GPU 上 |
 
 
 ## 运行示例

@@ -1,62 +1,84 @@
-# Mini Coding Agent：本地模型与 MBPP 教学示例
+# Mini Coding Agent
 
-这是一个面向本科高年级课程的可读、可修改的 coding agent demo。它使用 OpenAI 兼容接口调用本地模型，提供文件查看和编辑、测试反馈、失败后调试、静态安全审查和 HTML 轨迹。本项目直接实现 agent 循环，**不依赖 LangChain**；学生也可以自行选择 LangChain、其他框架或完全不同的设计。
+本项目是机器学习课程的一个参考示例：让本地大语言模型使用工具阅读和修改 Python 代码，运行测试，并根据测试结果继续调试。项目中还加入了静态安全检查，运行结束后会生成一份 HTML 报告，方便查看模型的操作过程。
 
-本仓库包括原始 MBPP sanitized 数据（427 条，约 249 KiB）、两次实际模型实验的记录和可重新运行的评测脚本。模型权重和推理服务需要自行准备；仓库不会自动下载或启动模型。
+示例使用 Python 实现 agent 的基本循环，没有依赖 LangChain。大家可以在此基础上修改，也可以使用 LangChain 或其他工具，从自己感兴趣的方向设计 coding agent。
 
-## 工作过程
+## Agent 做了什么
 
-```text
-任务 + 工作区 -> 模型选择工具 -> 读取/修改代码 -> 测试反馈 -> 继续修改
-                                          |               |
-                                          +-> 静态安全审查 +-> 最终测试与 HTML 报告
-```
+给定一个代码目录和一段任务描述，agent 会在工作区副本中执行以下操作：
 
-示例工具包括 `list_files`、`search_code`、`read_file`、`replace_code`、`create_file`、`run_tests`、`security_review`、`rollback` 和 `update_plan`。测试失败时 agent 可以继续修改；模型能否最终解决问题依赖任务和模型。报告区分测试结果和 Bandit 审查结果。
+1. 查看文件和代码，确定需要修改的位置；
+2. 使用工具修改代码、运行测试，根据测试反馈继续调整；
+3. 使用 Bandit 检查 Python 文件，并记录检查结果；
+4. 输出代码差异、测试结果和运行报告。
 
-## 环境与快速开始
+可用工具包括文件查看、代码搜索、代码修改、运行测试、安全检查和撤销修改等，具体实现见 [`agent/tools.py`](agent/tools.py)。模型可能无法完成任务，也可能反复修改后仍然失败；可以结合报告观察它在什么地方遇到了问题。
 
-- Linux x86-64；Landlock ABI ≥ 3、`libseccomp.so.2`、`/usr/bin/python3`。测试执行使用 Landlock、seccomp 和资源限制；不满足条件时会报错，不会静默降级。建议以普通用户运行。
-- Python 3.9 及以上（实际验证使用 Python 3.13）与 `venv`、`pip`。
-- 已运行的 OpenAI 兼容 `/v1/chat/completions` 服务，须支持原生 tool calling、`temperature` 和 `chat_template_kwargs`；本 demo 要求返回的 `model` 字段与请求 ID 一致。不同服务的兼容性和具体模型 ID 需要自行核对。
+## 运行环境
+
+运行示例需要：
+
+- Linux x86-64，支持 Landlock ABI 3 或以上，并安装 `libseccomp.so.2` 和 `/usr/bin/python3`；
+- Python 3.9 或以上，以及 `venv`、`pip`；
+- 一个已启动的 OpenAI 兼容模型服务，支持 tool calling 和 `chat_template_kwargs`。模型服务返回的 `model` 字段需要与请求的模型名称一致。
+
+项目不包含模型权重，也不会自动启动模型服务。以下是本次实验所用模型的部署情况，供参考：
+
+| 模型 | 实验中的部署情况 |
+| --- | --- |
+| Qwen3.5-4B | 本机通过 vLLM 服务调用，运行在 1 张 NVIDIA GeForce RTX 4090 上；该卡显存容量约 22.5 GiB。 |
+| Qwen3.6-35B-A3B-FP8 | 调用另一台服务器上已经运行的 vLLM 服务；实验记录没有保存该服务使用的显卡型号和数量。 |
+
+本机另有 35B FP8 权重文件，大小约 34.9 GiB，但没有在本机完成该模型的加载测试。模型权重、上下文缓存和推理框架都会占用显存，实际部署需求会随量化方式、上下文长度和并发量变化。
+
+## 运行示例
+
+进入本目录，创建环境并安装依赖：
 
 ```bash
+cd Mini_Coding_Agent
 python3 -m venv .venv
 .venv/bin/python -m pip install -r requirements.txt
 .venv/bin/python -m unittest discover -s tests -v
+```
 
-# 根据本地服务修改地址和模型名；需要认证时另设 COURSE_AGENT_API_KEY。
+启动模型服务后，按实际情况设置服务地址和模型名称，再运行一个示例：
+
+```bash
 export COURSE_AGENT_BASE_URL=http://127.0.0.1:8000/v1
 export COURSE_AGENT_MODEL=Qwen3.5-4B
+# 如果服务需要认证，还需要设置 COURSE_AGENT_API_KEY。
+
 .venv/bin/python -m agent.cli \
   --workspace examples/metrics \
   --task "$(cat examples/metrics/task.txt)"
 ```
 
-运行后会在 `runs/` 下创建新目录，包含 agent 的工作区副本、`trace.jsonl`、代码差异、测试与安全审查结果、`report.html`。原示例不会被修改。轨迹可能含本机路径、服务地址、题目或代码，公开前请自行检查；不要把 API key 写入仓库。
+每次运行都会在 `runs/` 下新建目录，保存工作区副本、模型和工具调用记录、代码差异、测试结果、安全检查结果以及 `report.html`。原始示例目录不会被修改。发布自己的运行记录前，请检查其中是否包含本机路径、服务地址或其他不适合公开的内容。
 
-其他示例：`examples/text_analyzer/`、`examples/security_review/`。可直接打开 `examples/trajectories/` 中保存的实际 HTML 报告，观察失败与修复过程。
+`examples/` 中还有文本处理和安全检查示例。也可以直接打开 [`examples/trajectories/`](examples/trajectories/) 中已有的 HTML 报告，查看模型修改代码和处理测试反馈的过程。
 
-## MBPP 双模型实验记录
+## MBPP 测试
 
-此前选取 20 道题，每题让两个模型各尝试一次：每题前两条原始断言提供给 agent，其余断言在 agent 结束后另行测试。没有重试或替换；参考解预检 20/20 通过。主结果要求公开测试和保留测试都通过。
+项目附带了 [MBPP sanitized 数据集](data/mbpp/README.md)和一组双模型测试记录。测试从适配当前 agent 的题目中选取了 20 道；每题将前两条原始断言交给 agent，剩余断言在运行结束后单独测试。两个模型每题各运行一次，没有重试或替换题目。
 
 | 指标 | Qwen3.5-4B | Qwen3.6-35B-A3B-FP8 |
 | --- | ---: | ---: |
-| 两组测试均通过 | 17/20 | 20/20 |
-| 未通过 | 3/20 | 0/20 |
-| 完整任务平均耗时 | 7.08 秒 | 5.49 秒 |
-| 完整任务耗时中位数 | 5.86 秒 | 4.90 秒 |
+| 公开测试和保留测试均通过 | 17/20 | 20/20 |
+| 至少一组测试未通过 | 3/20 | 0/20 |
+| 平均任务耗时 | 7.08 秒 | 5.49 秒 |
+| 任务耗时中位数 | 5.86 秒 | 4.90 秒 |
 
-耗时涵盖 agent 进程启动、服务请求与排队、公开测试、静态扫描和报告生成，不含结束后的保留测试。模型版本、服务和量化方式不同，硬件没有受控；这些数字不能用来推断纯模型速度或参数规模的因果影响。只有 20 道探索性题目，且每题只有一条保留断言，测试通过不代表全面正确。
+耗时从 agent 进程启动计至退出，包括模型请求及排队、公开测试、安全检查和报告生成，不包括结束后的保留测试。两个模型的版本和部署环境不同，这组结果主要用于展示测试过程，不宜据此比较模型的纯推理速度。每题只有一条保留断言，通过测试也不能保证对所有输入都正确。
 
-详细结果见 [20 题结果说明](results/mbpp20/README.md)、[逐题 CSV](results/mbpp20/episodes.csv)、[实验协议](results/mbpp20/protocol.json) 和 [汇总](results/mbpp20/summary.json)。另有较早的 [5 题试运行](results/mbpp5/README.md)，单独保存，不计入上述指标。
+逐题结果、测试条件和失败案例见 [`results/mbpp20/`](results/mbpp20/)。更早的 5 题试运行记录单独保存在 [`results/mbpp5/`](results/mbpp5/)，没有计入上表。
 
-MBPP 是公开数据：虽然保留断言未放进 agent 工作区，仓库内的数据集包含原始答案和全部断言，不能当作保密评测集，也无法排除模型预训练中见过它们。建议课堂互评准备另外的、自行设计的测试任务。
+MBPP 数据集是公开的，仓库中的文件包含参考答案和全部测试；即使保留断言没有提供给 agent，也不能把它当作保密题库。课程互评时可以另行设计测试题和评价方式。
 
-## 复跑两模型评测
+## 重新运行 MBPP 测试
 
-先配置好两个服务。下面只准备原 20 道题中的第 1 道，适合快速试运行。去掉 `--limit 1` 可准备完整的 20 道。
+先准备两个模型服务。以下命令只运行原实验的第 1 道题；去掉 `--limit 1` 可以准备全部 20 道。
 
 ```bash
 .venv/bin/python -m benchmarks.mbpp.prepare --out runs/mbpp-prepared --limit 1
@@ -66,20 +88,21 @@ MBPP 是公开数据：虽然保留断言未放进 agent 工作区，仓库内�
   --35b-url http://127.0.0.1:8001/v1 --35b-model Qwen3.6-35B-A3B
 ```
 
-两个输出目录必须是新目录且互不包含；如需再次运行，请使用新的目录名。运行串行、交替模型先后顺序，默认最多 12 步，每次输出最多 1024 tokens，每题每模型 240 秒。地址和模型名应改为实际值。`COURSE_AGENT_API_KEY` 供两个服务共用；不同认证配置需要自行扩展。结果记录在 `episodes.csv`、`episodes.jsonl` 和 `summary.json`；超时、模型故障和验证不可用归为 `unknown`，不会算作通过。具体实现、依赖版本或服务配置变化可能导致新结果不同于历史结果。
+请将地址和模型名称改成实际值。两个输出目录必须是尚不存在的目录，且不能互相包含；再次运行时请使用新的目录名。脚本串行执行任务，并交替两个模型的先后顺序；结果保存在 `episodes.csv`、`episodes.jsonl` 和 `summary.json`。超时、模型错误或测试环境不可用会记录为 `unknown`。如果两个服务都需要认证，当前脚本使用同一个 `COURSE_AGENT_API_KEY`。
 
-## 课堂使用和安全边界
+## 安全说明
 
-可以让学生观察一条实际轨迹，比较不同工具、反馈策略和测试设计，再自主选择目标、框架、评测方式和展示内容；不必照搬本 demo。项目可以互评，但应公开评测规则并区分正确性、耗时、错误处理和安全性。
+Bandit 的扫描结果需要人工判断：没有发现问题不等于代码安全，测试文件中的 `assert` 也可能触发 B101 提示。项目使用 Landlock、seccomp 和资源限制运行测试，但整个 agent 不是经过安全审计的多用户隔离系统。请使用普通用户运行，不要将其直接用于执行来源不明的代码或部署为公网服务。
 
-Bandit 是基于规则的静态检查：发现需要人工判断，`no_findings` 不证明代码安全。MBPP 公共测试中的 `assert` 可能触发 B101，不能据此说生成代码有漏洞。测试 runner 有文件、系统调用及资源限制，但整个 agent 及模型服务不是经过安全审计的多租户隔离系统；不应在含敏感文件的账户下执行不可信代码或直接作为公网服务。生产或多人部署需要独立审核和更强隔离。
+## 目录
 
-## 目录与许可
+```text
+agent/               agent 循环、工具、测试运行器和报告
+examples/            示例任务和运行轨迹
+benchmarks/mbpp/     MBPP 题目准备和双模型测试脚本
+data/mbpp/           MBPP sanitized 数据集
+results/             既有测试结果
+tests/               项目测试
+```
 
-- `agent/`：工具、控制循环、沙箱、安全审查、报告。
-- `examples/`：示例任务和部分真实轨迹。
-- `benchmarks/mbpp/`：题目准备和双模型评测。
-- `data/mbpp/`：完整的 sanitized MBPP，来源、署名和许可证见 [数据说明](data/mbpp/README.md)。
-- `results/`：历史协议、汇总和逐题结果；`tests/`：项目测试。
-
-本仓库示例代码按 [MIT License](LICENSE) 提供；MBPP 数据按其原许可 [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) 提供，见 [数据说明](data/mbpp/README.md)。
+项目代码采用 [MIT License](LICENSE)；MBPP 数据集采用 [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/)，数据来源和署名见[数据说明](data/mbpp/README.md)。

@@ -31,6 +31,7 @@
 | Qwen3.6-35B-A3B-FP8 | 调用另一台服务器上的 vLLM 服务，运行在 1 张 NVIDIA A100 GPU 上，显存 80 GB。 |
 | Hy-MT2-7B-FP8 | 本机通过 vLLM 服务调用，运行在 1 张 NVIDIA GeForce RTX 4090 上；该卡显存容量约 22.5 GiB。 |
 
+为了方便大家在本地部署运行，大家可以使用 Qwen2.5-Coder-1.5B, Qwen2.5-Coder-3B, Qwen3.5-4B等模型进行尝试
 
 ## 运行示例
 

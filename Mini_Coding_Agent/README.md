@@ -28,7 +28,8 @@
 | 模型 | 实验中的部署情况 |
 | --- | --- |
 | Qwen3.5-4B | 本机通过 vLLM 服务调用，运行在 1 张 NVIDIA GeForce RTX 4090 上；该卡显存容量约 22.5 GiB。 |
-| Qwen3.6-35B-A3B-FP8 | 调用另一台服务器上的 vLLM 服务，运行在 1 张 NVIDIA A100 Tensor Core GPU 上 |
+| Qwen3.6-35B-A3B-FP8 | 调用另一台服务器上的 vLLM 服务，运行在 1 张 NVIDIA A100 GPU 上，显存 80 GB。 |
+| Hy-MT2-7B-FP8 | 本机通过 vLLM 服务调用，运行在 1 张 NVIDIA GeForce RTX 4090 上；该卡显存容量约 22.5 GiB。 |
 
 
 ## 运行示例
@@ -60,18 +61,21 @@ export COURSE_AGENT_MODEL=Qwen3.5-4B
 
 ## MBPP 测试
 
-项目附带了 [MBPP sanitized 数据集](data/mbpp/README.md)和一组双模型测试记录。测试从适配当前 agent 的题目中选取了 20 道；每题将前两条原始断言交给 agent，剩余断言在运行结束后单独测试。两个模型每题各运行一次，没有重试或替换题目。
+项目附带了 [MBPP sanitized 数据集](data/mbpp/README.md)和三种模型的测试记录。测试从适配当前 agent 的题目中选取了 20 道；每题将前两条原始断言交给 agent，剩余断言在运行结束后单独测试。每个模型每题各运行一次，没有重试或替换题目。
 
-| 指标 | Qwen3.5-4B | Qwen3.6-35B-A3B-FP8 |
-| --- | ---: | ---: |
-| 公开测试和保留测试均通过 | 17/20 | 20/20 |
-| 至少一组测试未通过 | 3/20 | 0/20 |
-| 平均任务耗时 | 7.08 秒 | 5.49 秒 |
-| 任务耗时中位数 | 5.86 秒 | 4.90 秒 |
+| 指标 | Qwen3.5-4B | Qwen3.6-35B-A3B-FP8 | Hy-MT2-7B-FP8 |
+| --- | ---: | ---: | ---: |
+| 公开测试和保留测试均通过 | 17/20 | 20/20 | 5/20 |
+| 至少一组测试未通过 | 3/20 | 0/20 | 15/20 |
+| 正常结束 | 17/20 | 20/20 | 4/20 |
+| 平均任务耗时 | 7.08 秒 | 5.49 秒 | 24.82 秒 |
+| 任务耗时中位数 | 5.86 秒 | 4.90 秒 | 24.08 秒 |
 
-耗时从 agent 进程启动计至退出，包括模型请求及排队、公开测试、安全检查和报告生成，不包括结束后的保留测试。两个模型的版本和部署环境不同，这组结果主要用于展示测试过程，不宜据此比较模型的纯推理速度。每题只有一条保留断言，通过测试也不能保证对所有输入都正确。
+耗时从 agent 进程启动计至退出，包括模型请求及排队、公开测试、安全检查和报告生成，不包括结束后的保留测试。三次实验的模型、部署环境和运行时间不同，不宜据此比较模型的纯推理速度。每题只有一条保留断言，通过测试也不能保证对所有输入都正确。
 
-逐题结果、测试条件和失败案例见 [`results/mbpp20/`](results/mbpp20/)。更早的 5 题试运行记录单独保存在 [`results/mbpp5/`](results/mbpp5/)，没有计入上表。
+Hy-MT2 是翻译模型。实验时其服务没有启用原生自动工具调用，因此使用 JSON 文本适配层转发工具请求；两款 Qwen 使用原生工具调用。这些结果可用来观察不同模型和接口的表现，但不是严格控制条件的模型能力排名。Hy 有 16 次达到步数上限，其中题目 132 的最终测试通过，但 agent 没有正常结束。
+
+三模型逐题对照和 Hy 的失败案例见 [`results/mbpp-hy20/`](results/mbpp-hy20/)，原始 Qwen 双模型结果见 [`results/mbpp20/`](results/mbpp20/)。更早的 5 题试运行记录单独保存在 [`results/mbpp5/`](results/mbpp5/)，没有计入上表。
 
 MBPP 数据集是公开的，仓库中的文件包含参考答案和全部测试；即使保留断言没有提供给 agent，也不能把它当作保密题库。课程互评时可以另行设计测试题和评价方式。
 
@@ -89,6 +93,27 @@ MBPP 数据集是公开的，仓库中的文件包含参考答案和全部测试
 
 请将地址和模型名称改成实际值。两个输出目录必须是尚不存在的目录，且不能互相包含；再次运行时请使用新的目录名。脚本串行执行任务，并交替两个模型的先后顺序；结果保存在 `episodes.csv`、`episodes.jsonl` 和 `summary.json`。超时、模型错误或测试环境不可用会记录为 `unknown`。如果两个服务都需要认证，当前脚本使用同一个 `COURSE_AGENT_API_KEY`。
 
+### 用 Hy-MT2 重新运行
+
+如果模型服务没有启用原生工具调用，可以启动本地适配层，将模型输出的 JSON 转换为工具调用。先在一个终端运行：
+
+```bash
+.venv/bin/python -m benchmarks.mbpp.hy_adapter \
+  --upstream http://127.0.0.1:8002/v1 --model Hy-MT2-7B \
+  --port 8765 --trace runs/hy-adapter-trace.jsonl
+```
+
+将 `--upstream` 和模型名称改为实际服务配置。在另一个终端准备题目并运行；以下只测试 1 道，去掉 `--limit 1` 可准备 20 道：
+
+```bash
+.venv/bin/python -m benchmarks.mbpp.prepare --out runs/hy-prepared --limit 1
+.venv/bin/python -m benchmarks.mbpp.run_single \
+  --prepared runs/hy-prepared --out runs/hy-results \
+  --base-url http://127.0.0.1:8765/v1 --model Hy-MT2-7B
+```
+
+运行后可在 `runs/hy-results/` 查看结果；结束时在第一个终端按 Ctrl+C 关闭适配层。输出目录和适配器轨迹文件必须使用新路径。轨迹可能包含题目和代码，公开前请检查。历史测试使用的原始 harness 与本仓库版本有少量配置差异，重新运行的结果可能不同。
+
 ## 安全说明
 
 Bandit 的扫描结果需要人工判断：没有发现问题不等于代码安全，测试文件中的 `assert` 也可能触发 B101 提示。项目使用 Landlock、seccomp 和资源限制运行测试，但整个 agent 不是经过安全审计的多用户隔离系统。请使用普通用户运行，不要将其直接用于执行来源不明的代码或部署为公网服务。
@@ -98,7 +123,7 @@ Bandit 的扫描结果需要人工判断：没有发现问题不等于代码安�
 ```text
 agent/               agent 循环、工具、测试运行器和报告
 examples/            示例任务和运行轨迹
-benchmarks/mbpp/     MBPP 题目准备和双模型测试脚本
+benchmarks/mbpp/     MBPP 题目准备、模型测试和工具调用适配
 data/mbpp/           MBPP sanitized 数据集
 results/             既有测试结果
 tests/               项目测试

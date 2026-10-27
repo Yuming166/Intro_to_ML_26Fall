@@ -1,0 +1,16 @@
+{
+  "status": "passed",
+  "errors": [],
+  "planned": 20,
+  "recorded": 20,
+  "original_qwen_rows": 40,
+  "heldout_rechecks": 20,
+  "heldout_rechecks_matching": 20,
+  "adapter_responses": 230,
+  "adapter_response_types": {
+    "tool": 217,
+    "invalid_schema": 3,
+    "final": 7,
+    "invalid_json": 3
+  }
+}

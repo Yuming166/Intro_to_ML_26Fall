@@ -1,0 +1,22 @@
+{
+  "planned": 20,
+  "recorded": 20,
+  "correctness": {
+    "failed": 15,
+    "passed": 5
+  },
+  "agent_status": {
+    "step_limit": 16,
+    "verified_public_tests": 4
+  },
+  "wall_mean_s": 24.82,
+  "wall_median_s": 24.08,
+  "timed": 20,
+  "model_calls": 230,
+  "adapter_response_types": {
+    "tool": 217,
+    "invalid_schema": 3,
+    "final": 7,
+    "invalid_json": 3
+  }
+}

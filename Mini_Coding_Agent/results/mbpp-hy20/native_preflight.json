@@ -1,0 +1,12 @@
+{
+  "status": 400,
+  "response": {
+    "error": {
+      "message": "\"auto\" tool choice requires --enable-auto-tool-choice and --tool-call-parser to be set",
+      "type": "BadRequestError",
+      "param": null,
+      "code": 400
+    }
+  },
+  "note": "Standalone non-MBPP tool calling preflight, excluded from benchmark."
+}

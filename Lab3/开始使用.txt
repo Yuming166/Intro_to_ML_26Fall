@@ -1,0 +1,114 @@
+一、目录和环境
+
+请保留解压后的目录结构：
+
+    main.py                 运行与评价框架
+    naive_bayes.py          唯一需要补全的核心文件
+    text_features.py        已提供的词频特征框架
+    clinc_loader.py         已提供的数据读取框架
+    check_examples.py       小例数值自检
+    requirements.txt
+    实验任务说明.txt
+    data/                   随包数据，已经划分
+
+建议Python 3.10或以上，使用自己的虚拟环境。
+不需要GPU、模型API、NLTK或额外下载分词资源。
+
+在激活的Python环境中，进入本文件所在目录，安装依赖：
+
+    python -m pip install -r requirements.txt
+
+requirements-tested.txt仅记录教师实际测试的版本。普通安装优先用requirements.txt。
+无需把data改成个人电脑的绝对地址，默认从main.py旁的data文件夹读取。
+
+二、先补全代码，再运行
+
+先在naive_bayes.py完成TODO 1至TODO 5。
+直接运行未完成的学生版会提示“请完成 TODO 1”，这是预期行为。
+请替换对应区域中的raise NotImplementedError，而不是删除检查逻辑。
+
+完成TODO 1—3，先核对参数估计：
+
+    python check_examples.py --stage fit
+
+完成全部必做，核对分类得分和预测：
+
+    python check_examples.py
+
+然后运行完整150类分类：
+
+    python main.py
+
+默认：多项式模型、alpha=1、单词特征、保留停用词。
+默认只读取训练集和验证集，不打开测试集，不调用任何附加题。
+每次自动建立新的output/时间戳目录，保留实验记录。
+
+三、完成必做对照
+
+平滑强度对照（其余设置不变）：
+
+    python main.py --alpha 1
+    python main.py --alpha 0.5
+    python main.py --alpha 0.1
+
+停用词对照（两组alpha均为1）：
+
+    python main.py --alpha 1 --stopwords none
+    python main.py --alpha 1 --stopwords english
+
+两组中重复的基线运行可以复用已保存的结果，无需反复训练。
+
+确定最终配置后，显式开启测试集。下方以alpha=1为命令示例，
+实际应填你在验证集上选出的alpha，并保持其余设置一致：
+
+    python main.py --alpha 1 --final-test
+
+不要根据测试分数反复更换配置；测试结果用于最后评价。
+
+四、附加题运行
+
+A1伯努利：完成OPTIONAL A1_FIT与OPTIONAL A1_SCORE两处后：
+
+    python check_examples.py --optional bernoulli
+    python main.py --model bernoulli --alpha 1
+
+A2词语贡献解释：完成OPTIONAL A2后，在多项式模型上运行：
+
+    python check_examples.py --optional explain
+    python main.py --explain
+
+两个附加题任选其一。无需完成附加题即可运行全部必做。
+
+五、主要输出
+
+metrics.json：配置、训练/验证指标；只有显式开启才有测试指标。
+validation_errors.csv：所有验证错误，含原句、真实类别、预测类别。
+validation_per_class.csv：150类的precision、recall、F1。
+validation_confusion_pairs.csv：混淆类别对，按错误数量排序。
+validation_confusions.png：最常混淆的15组类别。
+model.npz、features.json、classes.json：本次训练出的模型与词表。
+COMPLETION.json：只有成功完成本次任务才会生成。
+
+开启--final-test后有对应的test_*文件。
+开启--explain后有validation_word_explanations.json。
+
+六、随包数据
+
+程序实际读取data/train.csv、val.csv，以及显式开启时的test.csv。
+表头为text,label，label为英文意图名，读取器负责映射为整数。
+完整150类：训练15000、验证3000、测试4500；每类100/20/30条。
+固定官方划分，不重新随机拆分；词表只在训练集拟合。
+
+data/data_full.json是官方原始文件备份，包含OOS未知问题；
+oos_*.csv也一并保留，但本次必做和两个附加题均不使用OOS。
+SOURCE.json记录来源和文件校验信息，不要修改数据或校验文件。
+
+官方数据有极少量跨集合重复文本，框架保留原划分，另报排除训练重复
+文本后的补充指标。无需学生自行删行或调整标签。
+
+数据来源及引用：
+Stefan Larson et al. (2019).
+An Evaluation Dataset for Intent Classification and Out-of-Scope Prediction.
+https://aclanthology.org/D19-1131/
+https://github.com/clinc/oos-eval
+原数据许可见data/CLINC_LICENSE.txt，停用词来源见data/SOURCE.json。
